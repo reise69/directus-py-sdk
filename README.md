@@ -6,6 +6,7 @@
 
 A Python SDK for interacting with Directus, an open-source headless CMS and API platform.
 
+
 ## About Directus
 
 [Directus](https://directus.io/) is a powerful and flexible open-source headless CMS and API platform. It provides a

@@ -646,3 +646,4 @@ class DirectusClient:
                 self.post_relation(relation)
             else:
                 raise
+
