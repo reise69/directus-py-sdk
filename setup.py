@@ -9,8 +9,8 @@ README = (HERE / "README.md").read_text()
 
 # This call to setup() does all the work
 setup(
-    name="directus-py-sdk",
-    version="1.0.1",
+    name="directus-sdk-py",
+    version="1.0.0",
     description="Python SDK for interacting with Directus API (colletion, items, users, files)",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -31,7 +31,7 @@ setup(
     install_requires=["requests"],
     entry_points={
         "console_scripts": [
-            "directus-py-sdk=directus_py_sdk.__main__:main",
+            "directus-sdk-py=directus_sdk_py.__main__:main",
         ]
     },
 )

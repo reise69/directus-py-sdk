@@ -25,7 +25,7 @@ providing a set of methods that you can use to perform common tasks.
 You can install the Directus Python SDK using pip:
 
 ```bash
-pip install directus-py-sdk
+pip install directus-sdk-py
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ Here are some examples of how to use the Directus Python SDK:
 ### Initialize the Client
 
 ```python
-from directus_py_sdk import DirectusClient
+from directus_sdk_py import DirectusClient
 
 client = DirectusClient(url='https://your-directus-instance.com', token='your_access_token')
 ```
