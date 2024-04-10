@@ -1,8 +1,8 @@
 # Directus Python SDK
 
-[![PyPI version](https://badge.fury.io/py/directus-py-sdk.svg)](https://badge.fury.io/py/directus-py-sdk)
+[![PyPI version](https://badge.fury.io/py/directus-sdk-py.svg)](https://badge.fury.io/py/directus-sdk-py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/pypi/pyversions/directus-py-sdk.svg)](https://pypi.org/project/directus-py-sdk/)
+[![Python Version](https://img.shields.io/pypi/pyversions/directus-sdk-py.svg)](https://pypi.org/project/directus-sdk-py/)
 
 A Python SDK for interacting with Directus, an open-source headless CMS and API platform.
 
