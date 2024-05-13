@@ -137,7 +137,11 @@ class DirectusClient:
         if output_type == 'csv':
             return data.text
 
-        return data.json()['data']
+        try:
+            return data.json()['data']
+        except Exception as e:
+            return {'error': f'No data found for this request : {e}'}
+
 
     def post(self, path, **kwargs):
         """
@@ -176,8 +180,10 @@ class DirectusClient:
         headers = {"Authorization": f"Bearer {self.get_token()}"}
         response = requests.request("SEARCH", f"{self.url}{path}", headers=headers, json=query, verify=self.verify,
                                     **kwargs)
-
-        return response.json()['data']
+        try:
+            return response.json()['data']
+        except Exception as e:
+            return {'error': f'No data found for this request : {e}'}
 
     def delete(self, path, **kwargs):
         """
@@ -342,7 +348,7 @@ class DirectusClient:
         with open(file_path, "wb") as file:
             file.write(response.content)
 
-    def get_url_file(self, file_id: str, display: dict, transform: list) -> Union[str, bytes]:
+    def get_url_file(self, file_id: str, display: dict = {}, transform: list = []) -> Union[str, bytes]:
         """
         Retrieve a file.
 
@@ -646,4 +652,3 @@ class DirectusClient:
                 self.post_relation(relation)
             else:
                 raise
-
