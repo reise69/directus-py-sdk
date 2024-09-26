@@ -1,11 +1,10 @@
-# Directus Python SDK
+# Directus SDK for Python
 
 [![PyPI version](https://badge.fury.io/py/directus-sdk-py.svg)](https://badge.fury.io/py/directus-sdk-py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/pypi/pyversions/directus-sdk-py.svg)](https://pypi.org/project/directus-sdk-py/)
 
 A Python SDK for interacting with Directus, an open-source headless CMS and API platform.
-
 
 ## About Directus
 
@@ -40,7 +39,7 @@ from directus_sdk_py import DirectusClient
 client = DirectusClient(url='https://your-directus-instance.com', token='your_access_token')
 ```
 
-### Authentication
+### Authentication with email and password if needed
 
 ```python
 # Login with email and password
@@ -106,7 +105,11 @@ transform = [
 photo_url = client.get_file_url(items[0]['id'], display=display, transform=transform)
 
 # Download the file on the disk
-client.download_file(items[0]['id'], 'path/to/download.jpg', display=display, transform=transform)
+client.download_photo(items[0]['id'], 'path/to/download.jpg', display=display, transform=transform)
+
+
+# Download a file other than a photo
+client.download_file(items[0]['id'], 'path/to/download.jpg')
 
 
 # Upload a file
@@ -137,7 +140,7 @@ request = {
         # More information about filter requests can be found in the Directus API documentation (https://docs.directus.io/reference/filter-rules.html)
         "filter": {
             "col_name": {
-                "_icontains": "inverness" # Search inverness in the col_name column 
+                "_icontains": "inverness" # Search inverness in the col_name column
             }
         }
     }

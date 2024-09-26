@@ -1,6 +1,7 @@
 import sys
 
 import requests
+from urllib.parse import urljoin
 from urllib3.exceptions import InsecureRequestWarning
 from typing import Dict, List, Union, Optional
 import os, json
@@ -114,6 +115,22 @@ class DirectusClient:
             token = ""
         return token
 
+    
+    def clean_url(self, domain: str, path: str) -> str:
+        """
+        Clean the URL by removing any leading slash.
+
+        Args:
+            path (str): The URL path.
+
+        Returns:
+            str: The cleaned URL path.
+        """
+        clean_path = urljoin(domain, path)
+        clean_path = clean_path.replace("//", "/") if not clean_path.startswith("http://") and not clean_path.startswith("https://") and not clean_path.startswith("//") else clean_path
+        return clean_path
+        
+    
     def get(self, path, output_type: str = "json", **kwargs):
         """
         Perform a GET request to the specified path.
@@ -127,7 +144,7 @@ class DirectusClient:
             dict or str: The response data.
         """
         data = requests.get(
-            f"{self.url}{path}",
+            self.clean_url(self.url, path),
             headers={"Authorization": f"Bearer {self.get_token()}"},
             verify=self.verify,
             **kwargs
@@ -137,11 +154,7 @@ class DirectusClient:
         if output_type == 'csv':
             return data.text
 
-        try:
-            return data.json()['data']
-        except Exception as e:
-            return {'error': f'No data found for this request : {e}'}
-
+        return data.json()['data']
 
     def post(self, path, **kwargs):
         """
@@ -155,7 +168,7 @@ class DirectusClient:
             dict: The response data.
         """
         response = requests.post(
-            f"{self.url}{path}",
+            self.clean_url(self.url, path),
             headers={"Authorization": f"Bearer {self.get_token()}"},
             verify=self.verify,
             **kwargs
@@ -178,8 +191,10 @@ class DirectusClient:
             dict: The response data.
         """
         headers = {"Authorization": f"Bearer {self.get_token()}"}
-        response = requests.request("SEARCH", f"{self.url}{path}", headers=headers, json=query, verify=self.verify,
+        response = requests.request("SEARCH", self.clean_url(self.url, path), headers=headers, json=query, verify=self.verify,
                                     **kwargs)
+       
+        
         try:
             return response.json()['data']
         except Exception as e:
@@ -194,7 +209,7 @@ class DirectusClient:
             **kwargs: Additional keyword arguments to pass to the request.
         """
         response = requests.delete(
-            f"{self.url}{path}",
+            self.clean_url(self.url, path),
             headers={"Authorization": f"Bearer {self.get_token()}"},
             verify=self.verify,
             **kwargs
@@ -214,7 +229,7 @@ class DirectusClient:
             dict: The response data.
         """
         response = requests.patch(
-            f"{self.url}{path}",
+            self.clean_url(self.url, path),
             headers={"Authorization": f"Bearer {self.get_token()}"},
             verify=self.verify,
             **kwargs
@@ -290,7 +305,7 @@ class DirectusClient:
 
     def retrieve_file(self, file_id: str, **kwargs) -> Union[str, bytes]:
         """
-        Retrieve a file.
+        Retrieve information about a file, not the way to download it
 
         Args:
             file_id (str): The file ID.
@@ -306,7 +321,24 @@ class DirectusClient:
             raise AssertionError(response.text)
         return response.content
 
-    def download_file(self, file_id: str, file_path: str, display: dict, transform: list) -> None:
+    def download_file(self, file_id: str, file_path: str) -> None:
+        """
+        Just download a directus file in local
+        Args:
+            file_id (str): The file ID.
+            file_path (str): The path to save the file on your computer / server.
+        """
+        url = f"{self.url}/assets/{file_id}?download="
+        headers = {"Authorization": f"Bearer {self.get_token()}"}
+        response = requests.get(url, headers=headers)
+    
+        
+        if response.status_code != 200:
+            raise AssertionError(response.text)
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+    
+    def download_photo(self, file_id: str, file_path: str, display: dict = {}, transform: list = []) -> None:
         """
         Download a file from Directus.
 
@@ -318,10 +350,6 @@ class DirectusClient:
                     ["blur", 45],
                     ["tint", "rgb(255, 0, 0)"],
                     ["expand", { "right": 200, "bottom": 150 }]
-
-        """
-
-        """
         Transformations:
             fit — The fit of the thumbnail while always preserving the aspect ratio, can be any of the following options:
                 cover — Covers both width/height by cropping/clipping to fit
@@ -337,10 +365,10 @@ class DirectusClient:
 
         """
 
-        if transform:
+        if len(transform) > 0:
             display["transforms"] = json.dumps(transform)
 
-        url = f"{self.url}/assets/{file_id}"
+        url = f"{self.url}/assets/{file_id}?download="
         headers = {"Authorization": f"Bearer {self.get_token()}"}
         response = requests.get(url, headers=headers, params=display, verify=self.verify)
         if response.status_code != 200:
@@ -451,7 +479,7 @@ class DirectusClient:
         Returns:
             dict: The item matching the query.
         """
-        return self.search(f"/items/{collection_name}/{item_id}", query=query, **kwargs)
+        return self.get(f"/items/{collection_name}/{item_id}", **kwargs)
 
     def create_item(self, collection_name, item_data, **kwargs):
         """

@@ -1,0 +1,6 @@
+help_pip_publication.md
+.venv
+dist
+build
+directus_sdk_py.egg-info
+.idea
