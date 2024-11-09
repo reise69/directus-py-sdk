@@ -19,6 +19,17 @@ This library provides a Python SDK for interacting with Directus. You can use it
 managing users, files, collections, and items. The SDK simplifies the process of interacting with the Directus API by
 providing a set of methods that you can use to perform common tasks.
 
+## New features (1.1.0)
+
+- Enhanced authentication handling with token expiration support
+- New `me()` method to get current user information
+- Improved file handling with automatic file type detection
+- New `DirectusQueryBuilder` for constructing complex queries
+- SQL to Directus query converter (`SQLToDirectusConverter`)
+- Better error handling and response processing
+- Enhanced image transformation capabilities
+- Improved URL handling and cleaning
+
 ## Installation
 
 You can install the Directus Python SDK using pip:
@@ -44,6 +55,12 @@ client = DirectusClient(url='https://your-directus-instance.com', token='your_ac
 ```python
 # Login with email and password
 client.login(email='user@example.com', password='password')
+
+# Get current user information
+me = client.me()
+
+# Refresh token
+client.refresh()
 
 # Logout
 client.logout()
@@ -166,10 +183,60 @@ updated_item = client.update_item(collection_name='your_collection', item_id='it
 client.delete_item(collection_name='your_collection', item_id='item_id')
 ```
 
+## Using DirectusQueryBuilder
+
+The new DirectusQueryBuilder provides a fluent interface for constructing complex queries:
+
+```python
+from directus_sdk_py import DirectusQueryBuilder, DOp
+
+# Create a builder instance
+builder = DirectusQueryBuilder()
+
+# Build a complex query
+query = (builder
+    .field("status", DOp.EQUALS, "published")
+    .or_condition([
+        {"author": {DOp.EQUALS: "john"}},
+        {"category": {DOp.IN: ["news", "tech"]}}
+    ])
+    .sort("date_created", "-title")
+    .limit(10)
+    .offset(0)
+    .build())
+
+# Use the query
+items = client.get_items("articles", query)
+```
+
+## SQL to Directus Query Converter
+
+For those like me, like to use SQL instead of Directus query language, you can use the `SQLToDirectusConverter` to convert your SQL queries to Directus query format:
+
+```python
+from directus_sdk_py import SQLToDirectusConverter
+
+converter = SQLToDirectusConverter()
+
+sql_query = """
+SELECT * FROM articles
+WHERE status = 'published'
+AND (author = 'john' OR category IN ('news', 'tech'))
+ORDER BY date_created ASC, title DESC
+"""
+
+directus_query = converter.convert(sql_query)
+items = client.get_items("articles", directus_query)
+
+```
+
 ## Contributing
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a
-pull request.
+Contributions are welcome! If you find any issues or have suggestions for improvements, please:
+
+- Fork the repository
+- Create a new branch for your feature
+- Submit a pull request
 
 ## License
 
